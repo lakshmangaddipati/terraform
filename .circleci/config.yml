@@ -4,6 +4,16 @@ jobs:
     steps:
       - checkout
       - run: echo "This is a build step"
+  tfsec:
+    machine: true
+    steps:
+      - checkout
+
+      - run: docker run --rm -v $(pwd):/src aquasec/tfsec /src -f json | tee tfsec-output.json
+
+      - store_artifacts:
+          path: tfsec-output.json
+          destination: tfsec-artifact
 
   test:
     machine: true
@@ -30,9 +40,13 @@ workflows:
   version: 2
   django:
     jobs:
-      - build
+      - tfsec
       - test
-      - integration
+          requires:
+            - tfsec
+      - integration:
+          requires:
+            - test
       - prod:
           type: approval
           requires:
