@@ -41,7 +41,7 @@ workflows:
   django:
     jobs:
       - tfsec
-      - test
+      - test:
           requires:
             - tfsec
       - integration:
